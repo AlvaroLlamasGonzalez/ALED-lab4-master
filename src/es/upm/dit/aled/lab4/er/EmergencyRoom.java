@@ -124,6 +124,9 @@ public class EmergencyRoom {
 	 */
 	public void admit(Patient patient) {
 		// TODO
+		 // Arrancamos la hebra del paciente para que empiece su protocolo
+        System.out.println("Admitting patient " + patient.getNumber());
+        patient.start();
 	}
 
 	/**
@@ -133,6 +136,14 @@ public class EmergencyRoom {
 	 */
 	public void waitForDischarge(Patient patient) {
 		// TODO
+		 try {
+	            patient.join();
+	            System.out.println("Patient " + patient.getNumber() + " has been discharged.");
+	        } catch (InterruptedException e) {
+	            System.out.println("Waiting for patient " + patient.getNumber() + " interrupted.");
+	            Thread.currentThread().interrupt();
+	        }
+	    
 	}
 
 }
