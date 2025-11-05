@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -127,7 +128,10 @@ public class FASTAReaderThreads {
         // Crear tareas para cada segmento
         for (int i = 0; i < cores; i++) {
             int lo = i * segmentSize;
-            int hi = (i == cores - 1) ? validBytes : (i + 1) * segmentSize;
+            int hi = ((1+i) * segmentSize);
+            if (i == cores - 1) {
+                hi = validBytes;
+            }
 
             // Añadimos margen para no perder coincidencias en los límites
             hi = Math.min(hi + pattern.length - 1, validBytes);

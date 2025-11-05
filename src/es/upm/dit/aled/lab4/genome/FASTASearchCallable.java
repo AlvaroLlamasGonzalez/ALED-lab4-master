@@ -50,7 +50,7 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	public List<Integer> call() throws Exception {
 		// TODO
 		List<Integer> positions = new ArrayList<>();
-        byte[] content = reader.getContent();
+        
         int validBytes = reader.getValidBytes();
 
         for (int i = lo; i < hi && i + pattern.length <= validBytes; i++) {
