@@ -32,6 +32,10 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 */
 	public FASTASearchCallable(FASTAReaderThreads reader, int lo, int hi, byte[] pattern) {
 		// TODO
+		this.reader = reader;
+        this.lo = lo;
+        this.hi = hi;
+        this.pattern = pattern;
 	}
 
 	/**
@@ -45,7 +49,23 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	@Override
 	public List<Integer> call() throws Exception {
 		// TODO
-		return null;
+		List<Integer> positions = new ArrayList<>();
+        byte[] content = reader.getContent();
+        int validBytes = reader.getValidBytes();
+
+        for (int i = lo; i < hi && i + pattern.length <= validBytes; i++) {
+            try {
+                if (compare(pattern, i)) {
+                    positions.add(i);
+                }
+            } catch (FASTAException e) {
+                // Si el patrón se sale del rango válido, terminamos esta tarea
+                break;
+            }
+        }
+        return positions;
+
+	
 	}
 
 	/*

@@ -131,6 +131,22 @@ public class Patient extends Thread {
 	 */
 	private void advanceProtocol() {
 		// TODO
+		if (indexProtocol >= protocol.size()) {
+            return;
+        }
+        Transfer t = protocol.get(indexProtocol);
+        System.out.println("Patient " + number + ": advancing to " + t.getTo().getName() +
+                           " (transfer time " + t.getTime() + " ms)");
+        // Llamada a la GUI para animar el traslado (la GUI bloquea durante la animación)
+        EmergencyRoomGUI.getInstance().animateTransfer(this, t);
+
+        // Actualizar ubicación y posición tras la animación
+        setLocation(t.getTo());
+        setPosition(t.getTo().getPosition());
+
+        // Avanzar índice del protocolo
+        indexProtocol++;
+		
 	}
 
 	/**
@@ -140,7 +156,19 @@ public class Patient extends Thread {
 	 */
 	private void attendedAtLocation() {
 		// TODO
-	}
+		Area loc = getLocation();
+        int millis = loc.getTime();
+        System.out.println("Patient " + number + ": being attended at " + loc.getName() +
+                           " for " + millis + " ms");
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // Si se interrumpe, imprimimos y restauramos el estado de interrupción
+            System.out.println("Patient " + number + ": interrupted while being attended.");
+            Thread.currentThread().interrupt();
+        }
+    }
+	
 
 	/**
 	 * Executes the Patient's behavior. It follows their protocol by being attended
@@ -150,6 +178,17 @@ public class Patient extends Thread {
 	@Override
 	public void run() {
 		// TODO
+		while(true) {
+		this.attendedAtLocation();
+		if (indexProtocol >= protocol.size()) {
+            System.out.println("Patient " + number + ": finished protocol. Removing from GUI.");
+            EmergencyRoomGUI.getInstance().removePatient(this);
+            break;
+        }
+
+		this.advanceProtocol();
+		}
+		
 	}
 
 }
