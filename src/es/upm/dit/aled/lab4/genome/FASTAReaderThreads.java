@@ -117,7 +117,7 @@ public class FASTAReaderThreads {
 	 */
 	public List<Integer> search(byte[] pattern) {
 		// TODO
-		List<Integer> result = new ArrayList<>();
+		/*List<Integer> result = new ArrayList<>();
 
         int cores = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(cores);
@@ -150,7 +150,38 @@ public class FASTAReaderThreads {
         }
 
         executor.shutdown();
-        return result;
+        return result;*/
+		List<Integer> results = new ArrayList<Integer>(0);
+		// Creates a thread pool with as many threads as cores
+		try {
+			int cores = Runtime.getRuntime().availableProcessors();
+			System.out.println("Using " + cores + " cores.");
+			ExecutorService executor = Executors.newFixedThreadPool(cores);
+			// Create as many tasks as cores
+			Future<List<Integer>>[] futures = new Future[cores];
+			// Create lo and hi, that will serve as the lower and higher limit of the
+			// section managed by each core
+			int tamano = content.length / cores;
+			int lo = 0;
+			int hi = 0 + tamano;
+			// Creates as many tasks as cores and submits them
+			for (int i = 0; i < cores; i++) {
+				Callable<List<Integer>> task = new FASTASearchCallable(this, lo, hi, pattern);
+				Future<List<Integer>> future = executor.submit(task);
+				futures[i] = future;
+				// Increase lo and hi
+				lo += tamano;
+				hi += tamano;
+			}
+			// Collects the results
+			for (int i = 0; i < futures.length; i++) {
+				results.addAll(futures[i].get());
+			}
+			executor.shutdown();
+		} catch (Exception e) {
+			System.out.println("Task was interrupted: " + e.getMessage());
+		}
+		return results;
 	}
 
 	public static void main(String[] args) {

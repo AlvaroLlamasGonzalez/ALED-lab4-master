@@ -131,7 +131,7 @@ public class Patient extends Thread {
 	 */
 	private void advanceProtocol() {
 		// TODO
-		if (indexProtocol >= protocol.size()) {
+		/*if (indexProtocol >= protocol.size()) {
             return;
         }
         Transfer t = protocol.get(indexProtocol);
@@ -146,6 +146,12 @@ public class Patient extends Thread {
 
         // Avanzar índice del protocolo
         indexProtocol++;
+        */
+        Transfer transfer = protocol.get(indexProtocol);
+		indexProtocol++;
+		System.out.println("Patient " + this.number + " is moving from " + this.location + " to " + transfer.getTo());
+		EmergencyRoomGUI.getInstance().animateTransfer(this, transfer);
+		this.location = transfer.getTo();
 		
 	}
 
@@ -156,7 +162,7 @@ public class Patient extends Thread {
 	 */
 	private void attendedAtLocation() {
 		// TODO
-		Area loc = getLocation();
+		/*Area loc = getLocation();
         int millis = loc.getTime();
         System.out.println("Patient " + number + ": being attended at " + loc.getName() +
                            " for " + millis + " ms");
@@ -166,7 +172,14 @@ public class Patient extends Thread {
             // Si se interrumpe, imprimimos y restauramos el estado de interrupción
             System.out.println("Patient " + number + ": interrupted while being attended.");
             Thread.currentThread().interrupt();
-        }
+        }*/
+		try {
+			System.out.println("Patient " + this.number + " is being attended at " + this.location);
+			sleep(this.location.getTime());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt(); // Restore interrupted status
+		}
     }
 	
 
@@ -178,7 +191,7 @@ public class Patient extends Thread {
 	@Override
 	public void run() {
 		// TODO
-		while(true) {
+		/*while(true) {
 		this.attendedAtLocation();
 		if (indexProtocol >= protocol.size()) {
             System.out.println("Patient " + number + ": finished protocol. Removing from GUI.");
@@ -188,7 +201,14 @@ public class Patient extends Thread {
 
 		this.advanceProtocol();
 		}
-		
+		*/
+		attendedAtLocation();
+		while (indexProtocol < protocol.size()) {
+			advanceProtocol();
+			attendedAtLocation();
+		}
+		EmergencyRoomGUI.getInstance().removePatient(this);
+		System.out.println("Patient " + this.number + " protocol finished at " + this.location);
 	}
 
 }

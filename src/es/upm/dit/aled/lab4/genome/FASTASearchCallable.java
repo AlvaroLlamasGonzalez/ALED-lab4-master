@@ -49,7 +49,7 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	@Override
 	public List<Integer> call() throws Exception {
 		// TODO
-		List<Integer> positions = new ArrayList<>();
+		/*List<Integer> positions = new ArrayList<>();
         
         int validBytes = reader.getValidBytes();
 
@@ -63,7 +63,18 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
                 break;
             }
         }
-        return positions;
+        return positions;*/
+		List<Integer> hits = new ArrayList<Integer>();
+		for (int i = lo; i < hi; i++) {
+			try {
+				if (compare(pattern, i))
+					hits.add(i);
+			} catch (FASTAException e) {
+				// We have reached the end of the file
+				break;
+			}
+		}
+		return hits;
 
 	
 	}
